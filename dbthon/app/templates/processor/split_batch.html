@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}Split Batch - TraceRoot{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-scissors"></i> Split Batch: {{ batch.batch_code }}</h2>
+    <a href="{{ url_for('main.processor_batches') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Batches
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-box-seam"></i> Parent Batch</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Batch Code:</strong> {{ batch.batch_code }}</p>
+                        <p><strong>Product:</strong> {{ batch.product.product_name }}</p>
+                        <p><strong>Available Quantity:</strong> <span class="text-primary">{{ batch.quantity_kg }} kg</span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Status:</strong> <span class="badge badge-{{ batch.status }}">{{ batch.status }}</span></p>
+                        <p><strong>Stage:</strong> {{ batch.stage }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-scissors"></i> Create Child Batches</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i> Total quantity to split: <strong><span id="total_qty">0</span> kg</strong> (Available: {{ batch.quantity_kg }} kg)
+                    </div>
+                    
+                    <div id="children-container">
+                        <div class="row mb-3 child-row">
+                            <div class="col-md-5">
+                                <label class="form-label">Child 1 Quantity (kg)</label>
+                                <input type="number" step="0.001" class="form-control child-qty" name="child_1_qty" required>
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label">Ship to Retailer (Optional)</label>
+                                <select class="form-select" name="child_1_retailer">
+                                    <option value="">Keep in stock</option>
+                                    {% for retailer in retailers %}
+                                    <option value="{{ retailer.user_id }}">{{ retailer.shop_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="button" class="btn btn-outline-danger w-100" onclick="removeChild(this)" disabled>
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3 child-row">
+                            <div class="col-md-5">
+                                <label class="form-label">Child 2 Quantity (kg)</label>
+                                <input type="number" step="0.001" class="form-control child-qty" name="child_2_qty">
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label">Ship to Retailer (Optional)</label>
+                                <select class="form-select" name="child_2_retailer">
+                                    <option value="">Keep in stock</option>
+                                    {% for retailer in retailers %}
+                                    <option value="{{ retailer.user_id }}">{{ retailer.shop_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="button" class="btn btn-outline-danger w-100" onclick="removeChild(this)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3 child-row">
+                            <div class="col-md-5">
+                                <label class="form-label">Child 3 Quantity (kg)</label>
+                                <input type="number" step="0.001" class="form-control child-qty" name="child_3_qty">
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label">Ship to Retailer (Optional)</label>
+                                <select class="form-select" name="child_3_retailer">
+                                    <option value="">Keep in stock</option>
+                                    {% for retailer in retailers %}
+                                    <option value="{{ retailer.user_id }}">{{ retailer.shop_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="button" class="btn btn-outline-danger w-100" onclick="removeChild(this)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-scissors"></i> Split Batch
+                    </button>
+                    <a href="{{ url_for('main.processor_batches') }}" class="btn btn-outline-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-info-circle"></i> DBMS Concept</h5>
+            </div>
+            <div class="card-body">
+                <p class="small text-muted mb-2">
+                    This uses the stored procedure <code>sp_split_batch</code> which demonstrates:
+                </p>
+                <ul class="small text-muted">
+                    <li><strong>Transaction:</strong> All operations (insert children, lineage, shipments, update parent) in one atomic transaction</li>
+                    <li><strong>Row Locking:</strong> SELECT ... FOR UPDATE preventsconcurrent splits</li>
+                    <li><strong>ROLLBACK on Error:</strong> If quantity is insufficient, everything is rolled back</li>
+                    <li><strong>Trigger Execution:</strong> Shipment trigger re-checks batch safety</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.querySelectorAll('.child-qty').forEach(input => {
+    input.addEventListener('input', updateTotal);
+});
+
+function updateTotal() {
+    let total = 0;
+    document.querySelectorAll('.child-qty').forEach(input => {
+        if (input.value) {
+            total += parseFloat(input.value);
+        }
+    });
+    document.getElementById('total_qty').textContent = total.toFixed(3);
+}
+
+function removeChild(btn) {
+    btn.closest('.child-row').remove();
+    updateTotal();
+}
+</script>
+{% endblock %}

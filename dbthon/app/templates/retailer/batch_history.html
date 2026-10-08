@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Batch History - TraceRoot{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-box-seam"></i> Batch History: {{ batch.batch_code }}</h2>
+    <a href="{{ url_for('main.retailer_shipments') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Shipments
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header bg-white">
+        <h5 class="mb-0"><i class="bi bi-info-circle"></i> Batch Details</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Batch Code:</strong> {{ batch.batch_code }}</p>
+                <p><strong>Product:</strong> {{ batch.product.product_name }}</p>
+                <p><strong>Batch Type:</strong> {{ batch.batch_type }}</p>
+                <p><strong>Farm:</strong> {{ batch.farm.farm_name if batch.farm else 'N/A (Derived)' }}</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Status:</strong> <span class="badge badge-{{ batch.status }}">{{ batch.status }}</span></p>
+                <p><strong>Stage:</strong> {{ batch.stage }}</p>
+                <p><strong>Harvest Date:</strong> {{ batch.harvest_date }}</p>
+                <p><strong>Expiry Date:</strong> {{ batch.expiry_date }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header bg-white">
+        <h5 class="mb-0"><i class="bi bi-clipboard-check"></i> Inspection History</h5>
+    </div>
+    <div class="card-body">
+        {% if batch.inspections %}
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Inspector</th>
+                        <th>Result</th>
+                        <th>Date</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inspection in batch.inspections %}
+                    <tr>
+                        <td>#{{ inspection.inspection_id }}</td>
+                        <td>{{ inspection.inspector.full_name }}</td>
+                        <td><span class="badge badge-{{ inspection.result }}">{{ inspection.result }}</span></td>
+                        <td>{{ inspection.inspected_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td><small>{{ inspection.remarks or '-' }}</small></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted">No inspections recorded</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header bg-white">
+        <h5 class="mb-0"><i class="bi bi-diagram-3"></i> Batch Lineage</h5>
+    </div>
+    <div class="card-body">
+        <h6 class="mb-3">Parent Batches (Source)</h6>
+        {% if batch.parent_lineage %}
+        <ul class="list-group mb-3">
+            {% for lineage in batch.parent_lineage %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <a href="{{ url_for('main.view_batch', batch_id=lineage.parent_batch_id) }}">
+                    Batch #{{ lineage.parent_batch_id }}
+                </a>
+                <span class="badge bg-primary">{{ lineage.relation_type }} ({{ lineage.quantity_used_kg }} kg)</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted mb-3">This is an origin batch (no parents)</p>
+        {% endif %}
+        
+        <h6 class="mb-3">Child Batches (Derived)</h6>
+        {% if batch.child_lineage %}
+        <ul class="list-group">
+            {% for lineage in batch.child_lineage %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <a href="{{ url_for('main.view_batch', batch_id=lineage.child_batch_id) }}">
+                    Batch #{{ lineage.child_batch_id }}
+                </a>
+                <span class="badge bg-success">{{ lineage.relation_type }} ({{ lineage.quantity_used_kg }} kg)</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted">No child batches</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

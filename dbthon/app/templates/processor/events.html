@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Processing Events - TraceRoot{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-tools"></i> Processing Events</h2>
+    <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Dashboard
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Event ID</th>
+                        <th>Batch</th>
+                        <th>Event Type</th>
+                        <th>Input (kg)</th>
+                        <th>Output (kg)</th>
+                        <th>Unit</th>
+                        <th>Date</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in events %}
+                    <tr>
+                        <td>#{{ event.event_id }}</td>
+                        <td><a href="{{ url_for('main.view_batch', batch_id=event.batch_id) }}">{{ event.batch.batch_code }}</a></td>
+                        <td><span class="badge bg-primary">{{ event.event_type }}</span></td>
+                        <td>{{ event.input_qty_kg }}</td>
+                        <td>{{ event.output_qty_kg }}</td>
+                        <td>{{ event.unit.unit_name }}</td>
+                        <td>{{ event.event_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td><small>{{ event.notes or '-' }}</small></td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center">No processing events recorded</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

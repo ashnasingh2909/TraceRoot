@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - TraceRoot{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon primary">
+                <i class="bi bi-box-seam"></i>
+            </div>
+            <h3>{{ stats.total_batches }}</h3>
+            <p>Total Batches</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon success">
+                <i class="bi bi-check-circle"></i>
+            </div>
+            <h3>{{ stats.active_batches }}</h3>
+            <p>Active Batches</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon warning">
+                <i class="bi bi-exclamation-triangle"></i>
+            </div>
+            <h3>{{ stats.quarantined_batches }}</h3>
+            <p>Quarantined</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon info">
+                <i class="bi bi-truck"></i>
+            </div>
+            <h3>{{ stats.total_shipments }}</h3>
+            <p>Total Shipments</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-speedometer2"></i> Welcome to TraceRoot</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-0">You are logged in as <strong>{{ current_user.full_name }}</strong> with role <span class="badge bg-info">{{ current_user.role.role_name }}</span></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+fetch('/api/stats/dashboard')
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.querySelectorAll('.stat-card h3').forEach((el, i) => {
+                const keys = ['total_batches', 'active_batches', 'quarantined_batches', 'total_shipments'];
+                el.textContent = data.stats[keys[i]];
+            });
+        }
+    });
+</script>
+{% endblock %}

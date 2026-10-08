@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Processor Dashboard - TraceRoot{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-gear"></i> Processor Dashboard</h2>
+    <a href="{{ url_for('main.processor_batches') }}" class="btn btn-primary">
+        <i class="bi bi-box-seam"></i> Manage Batches
+    </a>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon primary">
+                <i class="bi bi-box-seam"></i>
+            </div>
+            <h3>{{ batches|length }}</h3>
+            <p>Batches to Process</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon success">
+                <i class="bi bi-tools"></i>
+            </div>
+            <h3>{{ events|length }}</h3>
+            <p>Processing Events</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon warning">
+                <i class="bi bi-arrow-return-right"></i>
+            </div>
+            <h3>{{ splits|length }}</h3>
+            <p>Splits Performed</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon info">
+                <i class="bi bi-layers"></i>
+            </div>
+            <h3>{{ merges|length }}</h3>
+            <p>Merges Performed</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-box-seam"></i> Available Batches for Processing</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Batch Code</th>
+                                <th>Product</th>
+                                <th>Quantity (kg)</th>
+                                <th>Status</th>
+                                <th>Stage</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for batch in batches[:5] %}
+                            <tr>
+                                <td><a href="{{ url_for('main.view_batch', batch_id=batch.batch_id) }}">{{ batch.batch_code }}</a></td>
+                                <td>{{ batch.product.product_name }}</td>
+                                <td>{{ batch.quantity_kg }}</td>
+                                <td><span class="badge badge-{{ batch.status }}">{{ batch.status }}</span></td>
+                                <td>{{ batch.stage }}</td>
+                                <td>
+                                    {% if batch.status == 'ACTIVE' and batch.quantity_kg > 0 %}
+                                    <a href="{{ url_for('main.split_batch', batch_id=batch.batch_id) }}" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-scissors"></i> Split
+                                    </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center">No batches available for processing</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Retailer Dashboard - TraceRoot{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-shop"></i> Retailer Dashboard</h2>
+    <a href="{{ url_for('main.retailer_shipments') }}" class="btn btn-primary">
+        <i class="bi bi-truck"></i> My Shipments
+    </a>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon primary">
+                <i class="bi bi-truck"></i>
+            </div>
+            <h3>{{ shipments|length }}</h3>
+            <p>Total Shipments</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon success">
+                <i class="bi bi-check-circle"></i>
+            </div>
+            <h3>{{ delivered|length }}</h3>
+            <p>Delivered</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon warning">
+                <i class="bi bi-clock"></i>
+            </div>
+            <h3>{{ in_transit|length }}</h3>
+            <p>In Transit</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon info">
+                <i class="bi bi-box-seam"></i>
+            </div>
+            <h3>{{ total_kg }}</h3>
+            <p>Total KG Received</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-4">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-patch-check me-2" aria-hidden="true"></i>Approved batches available</h5>
+                <span class="badge bg-success">{{ approved_batches|length }}</span>
+            </div>
+            <div class="card-body">
+                <p class="small text-muted">These active batches have passed inspection and have stock available. A processor must arrange the shipment to your store.</p>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Batch Code</th>
+                                <th>Product</th>
+                                <th>Available (kg)</th>
+                                <th>Inspection</th>
+                                <th>Expiry Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for batch in approved_batches %}
+                            <tr>
+                                <td><a href="{{ url_for('main.view_batch_history', batch_id=batch.batch_id) }}">{{ batch.batch_code }}</a></td>
+                                <td>{{ batch.product.product_name }}</td>
+                                <td>{{ batch.quantity_kg }}</td>
+                                <td><span class="badge badge-PASS">PASS</span></td>
+                                <td>{{ batch.expiry_date }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center">No approved batches are currently available</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-truck"></i> Recent Shipments</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Shipment ID</th>
+                                <th>Batch Code</th>
+                                <th>Product</th>
+                                <th>Quantity (kg)</th>
+                                <th>Shipped Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for shipment in shipments[:5] %}
+                            <tr>
+                                <td>#{{ shipment.shipment_id }}</td>
+                                <td><a href="{{ url_for('main.view_batch_history', batch_id=shipment.batch_id) }}">{{ shipment.batch.batch_code }}</a></td>
+                                <td>{{ shipment.batch.product.product_name }}</td>
+                                <td>{{ shipment.quantity_kg }}</td>
+                                <td>{{ shipment.shipped_date }}</td>
+                                <td><span class="badge bg-{{ 'success' if shipment.status == 'DELIVERED' else 'warning' }}">{{ shipment.status }}</span></td>
+                                <td>
+                                    {% if shipment.status == 'IN_TRANSIT' %}
+                                    <form action="{{ url_for('main.confirm_shipment', shipment_id=shipment.shipment_id) }}" method="POST" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-success">Confirm Delivery</button>
+                                    </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center">No shipments received yet</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

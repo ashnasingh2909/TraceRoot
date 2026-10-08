@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}Recall Simulation - TraceRoot{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-shield-exclamation"></i> Recall Trace Simulation</h2>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-search"></i> Trace a Batch</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="batch_id" class="form-label">Batch ID</label>
+                        <input type="number" class="form-control" id="batch_id" name="batch_id" required placeholder="Enter batch ID (e.g., 3)">
+                        <small class="text-muted">Try batch ID 3 to see the recall trace for the failed coriander batch</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i> Trace Recall
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-info-circle"></i> DBMS Concept</h5>
+            </div>
+            <div class="card-body">
+                <p class="small text-muted mb-0">
+                    This uses a <strong>Recursive CTE</strong> in the stored procedure <code>sp_trace_recall</code> to traverse the batch lineage tree both upstream (to source farms) and downstream (to retailers). A cycle guard prevents infinite loops.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        {% if result_sets %}
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-diagram-3"></i> Trace Results for Batch #{{ batch_id }}</h5>
+            </div>
+            <div class="card-body">
+                <!-- Result Set 1: Summary -->
+                {% if result_sets[0] %}
+                <div class="alert alert-info">
+                    <h6><i class="bi bi-graph-up"></i> Impact Summary</h6>
+                    <div class="row">
+                        {% for key, value in result_sets[0][0].items() %}
+                        {% if key not in ['batch_id'] %}
+                        <div class="col-md-3 mb-2">
+                            <strong>{{ key.replace('_', ' ').title() }}:</strong> {{ value }}
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Result Set 2: Trace -->
+                {% if result_sets[1] %}
+                <h6 class="mt-4 mb-3"><i class="bi bi-diagram-3"></i> Batch Lineage Trace</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <tr>
+                                <th>Direction</th>
+                                <th>Batch Code</th>
+                                <th>Product</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Quantity (kg)</th>
+                                <th>Farm</th>
+                                <th>Note</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in result_sets[1] %}
+                            <tr>
+                                <td><span class="badge bg-{{ 'primary' if row.direction == 'ORIGIN' else 'secondary' if row.direction == 'UPSTREAM' else 'success' if row.direction == 'DOWNSTREAM' else 'warning' }}">{{ row.direction }}</span></td>
+                                <td>{{ row.batch_code }}</td>
+                                <td>{{ row.product_name }}</td>
+                                <td>{{ row.batch_type }}</td>
+                                <td><span class="badge badge-{{ row.status }}">{{ row.status }}</span></td>
+                                <td>{{ row.quantity_kg }}</td>
+                                <td>{{ row.farm_code or 'N/A' }}</td>
+                                <td><small>{{ row.note or '' }}</small></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+                
+                <!-- Result Set 3: Farms -->
+                {% if result_sets[2] %}
+                <h6 class="mt-4 mb-3"><i class="bi bi-house"></i> Affected Farms</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <tr>
+                                <th>Farm Code</th>
+                                <th>Farm Name</th>
+                                <th>Owner</th>
+                                <th>District, State</th>
+                                <th>Phone</th>
+                                <th>Source Batches</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in result_sets[2] %}
+                            <tr>
+                                <td>{{ row.farm_code }}</td>
+                                <td>{{ row.farm_name }}</td>
+                                <td>{{ row.owner_name }}</td>
+                                <td>{{ row.district }}, {{ row.state }}</td>
+                                <td>{{ row.owner_phone }}</td>
+                                <td><small>{{ row.source_batches }}</small></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+                
+                <!-- Result Set 4: Retailers -->
+                {% if result_sets[3] %}
+                <h6 class="mt-4 mb-3"><i class="bi bi-shop"></i> Affected Retailers</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <tr>
+                                <th>Shop Name</th>
+                                <th>Contact</th>
+                                <th>City</th>
+                                <th>Batch Code</th>
+                                <th>Quantity (kg)</th>
+                                <th>Shipped Date</th>
+                                <th>Shipment Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in result_sets[3] %}
+                            <tr>
+                                <td>{{ row.shop_name }}</td>
+                                <td>{{ row.contact_name }}<br><small>{{ row.phone }}</small></td>
+                                <td>{{ row.city }}</td>
+                                <td>{{ row.batch_code }}</td>
+                                <td>{{ row.quantity_kg }}</td>
+                                <td>{{ row.shipped_date }}</td>
+                                <td><span class="badge bg-{{ 'success' if row.shipment_status == 'DELIVERED' else 'warning' }}">{{ row.shipment_status }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-search" style="font-size: 4rem; color: #dee2e6;"></i>
+                <h5 class="mt-3 text-muted">Enter a batch ID to trace its recall impact</h5>
+                <p class="text-muted">The system will show all affected farms, batches, and retailers</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

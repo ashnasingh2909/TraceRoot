@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}TraceRoot - Farm-to-Shelf Food Tracking{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .sidebar {
+            min-height: calc(100vh - 56px);
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+        }
+        
+        .sidebar .nav-link {
+            color: #495057;
+            padding: 0.75rem 1rem;
+            margin: 0.25rem 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            background: var(--primary-gradient);
+            color: white;
+        }
+        
+        .sidebar .nav-link i {
+            margin-right: 0.5rem;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            height: 100%;
+        }
+        
+        .stat-card .icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-card .icon.primary {
+            background: var(--primary-gradient);
+            color: white;
+        }
+        
+        .stat-card .icon.success {
+            background: var(--success-gradient);
+            color: white;
+        }
+        
+        .stat-card .icon.warning {
+            background: var(--warning-gradient);
+            color: white;
+        }
+        
+        .stat-card .icon.info {
+            background: var(--info-gradient);
+            color: white;
+        }
+        
+        .stat-card h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card p {
+            color: #6c757d;
+            margin: 0;
+        }
+        
+        .btn-primary {
+            background: var(--primary-gradient);
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-gradient);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .table {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .table thead th {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            font-weight: 600;
+            padding: 1rem;
+        }
+        
+        .table tbody tr {
+            transition: background-color 0.2s ease;
+        }
+        
+        .table tbody tr:hover {
+            background-color: rgba(102, 126, 234, 0.05);
+        }
+        
+        .badge {
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        
+        .badge-ACTIVE {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .badge-QUARANTINED {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .badge-RECALLED {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .badge-CONSUMED {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+        
+        .badge-EXPIRED {
+            background-color: #d6d8db;
+            color: #1b1e21;
+        }
+        
+        .badge-PASS {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .badge-FAIL {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .badge-OPEN {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+        
+        .badge-CLOSED {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+        
+        .alert {
+            border: none;
+            border-radius: 10px;
+            padding: 1rem 1.5rem;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 8px;
+            padding: 0.75rem;
+            border: 1px solid #dee2e6;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .hero-section {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 4rem 0;
+            border-radius: 0 0 50px 50px;
+            margin-bottom: 2rem;
+        }
+        
+        .hero-section h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .hero-section p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+        }
+        
+        .feature-card {
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .feature-card i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        footer {
+            background: #343a40;
+            color: white;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+    </style>
+    <style>
+        :root {
+            --portal-ink: #162b2b;
+            --portal-green: #145943;
+            --portal-green-dark: #0e4434;
+            --portal-saffron: #cf762e;
+            --portal-line: #d5dfda;
+            --portal-muted: #526561;
+            --portal-paper: #f3f6f4;
+        }
+
+        body {
+            min-height: 100vh;
+            background-color: var(--portal-paper);
+            color: var(--portal-ink);
+            font-family: 'Public Sans', 'Segoe UI', sans-serif;
+            font-size: 0.94rem;
+        }
+
+        .public-service-bar {
+            min-height: 32px;
+            background: #f8faf9;
+            border-bottom: 1px solid var(--portal-line);
+            color: #3e514c;
+            font-size: 0.75rem;
+        }
+
+        .public-service-bar .container-fluid,
+        .portal-masthead .container-fluid,
+        .portal-navbar .container-fluid {
+            max-width: 1480px;
+        }
+
+        .portal-masthead {
+            background: #fff;
+            border-bottom: 3px solid var(--portal-saffron);
+        }
+
+        .portal-brand-lockup {
+            display: flex;
+            min-height: 78px;
+            align-items: center;
+            gap: 0.9rem;
+            color: var(--portal-ink);
+            text-decoration: none;
+        }
+
+        .portal-brand-mark {
+            display: grid;
+            width: 46px;
+            height: 46px;
+            flex: 0 0 46px;
+            place-items: center;
+            border: 1px solid #bfd0c8;
+            border-radius: 3px;
+            color: var(--portal-green);
+            font-size: 1.35rem;
+        }
+
+        .portal-brand-name {
+            display: block;
+            font-size: 1.22rem;
+            font-weight: 700;
+            line-height: 1.25;
+        }
+
+        .portal-brand-subtitle {
+            display: block;
+            margin-top: 0.15rem;
+            color: var(--portal-muted);
+            font-size: 0.78rem;
+        }
+
+        .portal-masthead-note {
+            color: var(--portal-muted);
+            font-size: 0.8rem;
+        }
+
+        .portal-navbar {
+            background: var(--portal-green-dark) !important;
+            padding-block: 0.15rem;
+        }
+
+        .portal-navbar .navbar-brand {
+            display: none;
+        }
+
+        .portal-navbar .nav-link {
+            padding: 0.72rem 0.9rem !important;
+            border-bottom: 3px solid transparent;
+            color: #f1f7f4 !important;
+            font-size: 0.86rem;
+        }
+
+        .portal-navbar .nav-link:hover,
+        .portal-navbar .nav-link:focus-visible {
+            background: rgba(255,255,255,0.09);
+            border-bottom-color: #e3a052;
+        }
+
+        .portal-navbar .navbar-toggler {
+            border-color: rgba(255,255,255,0.45);
+            border-radius: 3px;
+        }
+
+        .user-menu-link {
+            color: #fff !important;
+        }
+
+        .user-role-badge {
+            margin-left: 0.35rem;
+            padding: 0.2rem 0.42rem;
+            border: 1px solid rgba(255,255,255,0.45);
+            border-radius: 2px;
+            color: #fff;
+            font-size: 0.66rem;
+            letter-spacing: 0;
+        }
+
+        main.portal-content {
+            width: min(100% - 2rem, 1420px);
+            min-height: calc(100vh - 220px);
+            margin-inline: auto;
+            padding-block: 1.65rem 2.5rem;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--portal-ink);
+            font-weight: 650;
+        }
+
+        h2 {
+            font-size: 1.55rem;
+        }
+
+        .card {
+            overflow: hidden;
+            border: 1px solid var(--portal-line);
+            border-radius: 4px;
+            box-shadow: 0 2px 7px rgba(22,43,43,0.045);
+            transition: none;
+        }
+
+        .card:hover {
+            transform: none;
+            box-shadow: 0 2px 7px rgba(22,43,43,0.045);
+        }
+
+        .card-header {
+            padding: 0.9rem 1.1rem;
+            border-bottom: 1px solid var(--portal-line);
+            background: #f8faf9 !important;
+        }
+
+        .card-header h5 {
+            font-size: 0.98rem;
+        }
+
+        .stat-card {
+            border: 1px solid var(--portal-line);
+            border-top: 3px solid var(--portal-green);
+            border-radius: 3px;
+            box-shadow: 0 2px 6px rgba(22,43,43,0.04);
+        }
+
+        .stat-card .icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 3px;
+            margin-bottom: 0.75rem;
+            background: #e8f0ec !important;
+            color: var(--portal-green) !important;
+            font-size: 1.15rem;
+        }
+
+        .stat-card h3 {
+            font-size: 1.7rem;
+            color: var(--portal-ink);
+        }
+
+        .stat-card p,
+        .text-muted {
+            color: var(--portal-muted) !important;
+        }
+
+        .btn {
+            min-height: 38px;
+            border-radius: 3px;
+            font-size: 0.86rem;
+            font-weight: 600;
+        }
+
+        .btn-sm {
+            min-height: 32px;
+            border-radius: 3px;
+        }
+
+        .btn-primary {
+            border: 1px solid var(--portal-green);
+            background: var(--portal-green);
+            color: #fff;
+            box-shadow: none;
+        }
+
+        .btn-primary:hover,
+        .btn-primary:focus {
+            border-color: var(--portal-green-dark);
+            background: var(--portal-green-dark);
+            color: #fff;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-outline-primary {
+            border-color: var(--portal-green);
+            color: var(--portal-green);
+        }
+
+        .btn-outline-primary:hover {
+            border-color: var(--portal-green-dark);
+            background: var(--portal-green-dark);
+            color: #fff;
+        }
+
+        .table {
+            margin-bottom: 0;
+            border-color: var(--portal-line);
+            font-size: 0.87rem;
+        }
+
+        .table thead th {
+            padding: 0.76rem 0.8rem;
+            border-bottom: 2px solid #adc4b9;
+            background: #eaf0ed;
+            color: #263c36;
+            font-size: 0.76rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .table tbody td {
+            padding: 0.75rem 0.8rem;
+            vertical-align: middle;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f3f8f5;
+        }
+
+        a:not(.btn):not(.navbar-brand):not(.portal-brand-lockup) {
+            color: #145943;
+            text-decoration-thickness: 1px;
+            text-underline-offset: 2px;
+        }
+
+        .form-label {
+            color: #293c37;
+            font-size: 0.84rem;
+            font-weight: 650;
+        }
+
+        .record-label {
+            color: var(--portal-muted);
+            font-size: 0.74rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .record-value {
+            margin-top: 0.22rem;
+            color: var(--portal-ink);
+            font-weight: 600;
+        }
+
+        .form-control, .form-select {
+            min-height: 42px;
+            border: 1px solid #aebdb6;
+            border-radius: 3px;
+            padding: 0.58rem 0.72rem;
+            color: var(--portal-ink);
+            font-size: 0.9rem;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #246a50;
+            box-shadow: 0 0 0 3px rgba(36,106,80,0.16);
+        }
+
+        .alert {
+            border: 1px solid var(--portal-line);
+            border-left: 4px solid var(--portal-green);
+            border-radius: 3px;
+            padding: 0.8rem 1rem;
+        }
+
+        .hero-section {
+            margin-bottom: 1.5rem;
+            border-radius: 0;
+            border-bottom: 5px solid var(--portal-saffron);
+            background: var(--portal-green-dark);
+            padding: 2.2rem 0;
+        }
+
+        .hero-section h1 {
+            font-size: 2.35rem;
+        }
+
+        .feature-card {
+            text-align: left;
+        }
+
+        .feature-card i {
+            color: var(--portal-green);
+            background: none;
+            -webkit-text-fill-color: currentColor;
+        }
+
+        footer {
+            margin-top: 1rem;
+            border-top: 4px solid var(--portal-saffron);
+            background: #17352d;
+            padding: 1.35rem 0;
+            color: #f2f7f4;
+            font-size: 0.82rem;
+        }
+
+        footer .text-muted {
+            color: #c5d4cd !important;
+        }
+
+        @media (max-width: 767.98px) {
+            .portal-masthead-note {
+                display: none;
+            }
+
+            .portal-brand-lockup {
+                min-height: 68px;
+            }
+
+            .portal-brand-name {
+                font-size: 1.05rem;
+            }
+
+            .portal-brand-subtitle {
+                max-width: 250px;
+                font-size: 0.72rem;
+            }
+
+            main.portal-content {
+                width: min(100% - 1.25rem, 1420px);
+                padding-top: 1.2rem;
+            }
+
+            main.portal-content > .row {
+                margin-inline: 0;
+            }
+
+            .portal-navbar .navbar-nav {
+                padding-block: 0.35rem;
+            }
+
+            .portal-navbar .nav-link {
+                border-bottom: 0;
+                border-left: 3px solid transparent;
+                padding: 0.65rem 0.75rem !important;
+            }
+
+            .portal-navbar .nav-link:hover,
+            .portal-navbar .nav-link:focus-visible {
+                border-left-color: #e3a052;
+            }
+
+            .hero-section h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="public-service-bar">
+        <div class="container-fluid px-3 px-lg-4 d-flex align-items-center justify-content-between">
+            <span>Food Safety &amp; Traceability Service</span>
+            <span><i class="bi bi-shield-check me-1"></i> Official service portal</span>
+        </div>
+    </div>
+    <header class="portal-masthead">
+        <div class="container-fluid px-3 px-lg-4 d-flex align-items-center justify-content-between">
+            <a class="portal-brand-lockup" href="{{ url_for('main.dashboard') if current_user.is_authenticated else url_for('main.index') }}">
+                <span class="portal-brand-mark" aria-hidden="true"><i class="bi bi-diagram-3"></i></span>
+                <span>
+                    <span class="portal-brand-name">TraceRoot</span>
+                    <span class="portal-brand-subtitle">Food batch tracking and recall management</span>
+                </span>
+            </a>
+            <span class="portal-masthead-note">Secure access for authorised users</span>
+        </div>
+    </header>
+    {% if current_user.is_authenticated %}
+    <nav class="navbar navbar-expand-lg navbar-dark portal-navbar sticky-top">
+        <div class="container-fluid px-3 px-lg-4">
+            <a class="navbar-brand" href="{{ url_for('main.dashboard') }}">
+                <i class="bi bi-diagram-3"></i> TraceRoot
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.dashboard') }}">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.list_batches') }}">
+                            <i class="bi bi-box-seam"></i> Batches
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.recall_simulation') }}">
+                            <i class="bi bi-shield-exclamation"></i> Recall Simulation
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.reports') }}">
+                            <i class="bi bi-graph-up"></i> Reports
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle user-menu-link" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i> {{ current_user.full_name }}
+                            <span class="user-role-badge">{{ current_user.role.role_name if current_user.role else 'N/A' }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">
+                                <i class="bi bi-box-arrow-right"></i> Logout
+                            </a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+    
+    <main class="portal-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show mt-3" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </main>
+    
+    <footer>
+        <div class="container text-center">
+            <p class="mb-0">TraceRoot Food Safety &amp; Traceability Service</p>
+            <small class="text-muted">Farm-to-shelf batch records and recall coordination</small>
+        </div>
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

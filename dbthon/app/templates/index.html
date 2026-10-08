@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero-section text-center">
+    <div class="container">
+        <h1><i class="bi bi-diagram-3"></i> TraceRoot</h1>
+        <p class="lead">Farm-to-Shelf Food Batch Tracking and Recall Management System</p>
+        <p class="mb-4">Track every food batch from harvest to shelf. Quick recalls, complete traceability.</p>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-light btn-lg px-5 py-3">
+            <i class="bi bi-box-arrow-in-right"></i> Login to System
+        </a>
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card feature-card h-100">
+                <div class="card-body">
+                    <i class="bi bi-tree"></i>
+                    <h4>Complete Traceability</h4>
+                    <p class="text-muted">Track every batch through splits, merges, and shipments with full family tree visibility.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card feature-card h-100">
+                <div class="card-body">
+                    <i class="bi bi-shield-check"></i>
+                    <h4>Instant Recalls</h4>
+                    <p class="text-muted">Identify all affected farms, batches, and retailers in seconds using recursive CTEs.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card feature-card h-100">
+                <div class="card-body">
+                    <i class="bi bi-people"></i>
+                    <h4>Role-Based Access</h4>
+                    <p class="text-muted">Secure access control for Farmers, Processors, Inspectors, Retailers, and Food Safety Officers.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h3><i class="bi bi-database"></i> DBMS Features Demonstrated</h3>
+                    <div class="row mt-4">
+                        <div class="col-md-3 mb-3">
+                            <div class="p-3 bg-light rounded">
+                                <strong>Triggers</strong>
+                                <p class="small text-muted mb-0">Auto-quarantine on failed inspections</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="p-3 bg-light rounded">
+                                <strong>Stored Procedures</strong>
+                                <p class="small text-muted mb-0">Batch split with transactions</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="p-3 bg-light rounded">
+                                <strong>Recursive CTEs</strong>
+                                <p class="small text-muted mb-0">Upstream/downstream batch tracing</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="p-3 bg-light rounded">
+                                <strong>Views & Functions</strong>
+                                <p class="small text-muted mb-0">Risk scoring and impact analysis</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

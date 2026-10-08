@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block title %}{{ batch.batch_code }} - TraceRoot{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-box-seam"></i> Batch: {{ batch.batch_code }}</h2>
+    <a href="{{ url_for('main.list_batches') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Batches
+    </a>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon primary">
+                <i class="bi bi-box-seam"></i>
+            </div>
+            <h3>{{ batch.quantity_kg }} kg</h3>
+            <p>Current Quantity</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon success">
+                <i class="bi bi-calendar"></i>
+            </div>
+            <h3>{{ batch.harvest_date }}</h3>
+            <p>Harvest Date</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon warning">
+                <i class="bi bi-calendar-check"></i>
+            </div>
+            <h3>{{ batch.expiry_date }}</h3>
+            <p>Expiry Date</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon info">
+                <i class="bi bi-clipboard-check"></i>
+            </div>
+            <h3>{{ batch.inspections|length }}</h3>
+            <p>Inspections</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-info-circle"></i> Batch Details</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <th width="40%">Batch Code:</th>
+                        <td>{{ batch.batch_code }}</td>
+                    </tr>
+                    <tr>
+                        <th>Product:</th>
+                        <td>{{ batch.product.product_name }} ({{ batch.product.category }})</td>
+                    </tr>
+                    <tr>
+                        <th>Batch Type:</th>
+                        <td>{{ batch.batch_type }}</td>
+                    </tr>
+                    <tr>
+                        <th>Farm:</th>
+                        <td>{{ batch.farm.farm_name if batch.farm else 'N/A (Derived batch)' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Processing Unit:</th>
+                        <td>{{ batch.processing_unit.unit_name if batch.processing_unit else 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Initial Quantity:</th>
+                        <td>{{ batch.initial_quantity_kg }} kg</td>
+                    </tr>
+                    <tr>
+                        <th>Current Quantity:</th>
+                        <td>{{ batch.quantity_kg }} kg</td>
+                    </tr>
+                    <tr>
+                        <th>Status:</th>
+                        <td><span class="badge badge-{{ batch.status }}">{{ batch.status }}</span></td>
+                    </tr>
+                    <tr>
+                        <th>Stage:</th>
+                        <td>{{ batch.stage }}</td>
+                    </tr>
+                    <tr>
+                        <th>Created By:</th>
+                        <td>{{ batch.creator.full_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Created At:</th>
+                        <td>{{ batch.created_at.strftime('%Y‑%m‑%d %H:%M') }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-diagram-3"></i> Batch Lineage</h5>
+            </div>
+            <div class="card-body">
+                <h6 class="mb-3">Parent Batches</h6>
+                {% if batch.parent_lineage %}
+                <ul class="list-group mb-3">
+                    {% for lineage in batch.parent_lineage %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <a href="{{ url_for('main.view_batch', batch_id=lineage.parent_batch_id) }}">
+                            Batch #{{ lineage.parent_batch_id }}
+                        </a>
+                        <span class="badge bg-primary">{{ lineage.relation_type }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted">No parent batches (origin batch)</p>
+                {% endif %}
+                
+                <h6 class="mb-3">Child Batches</h6>
+                {% if batch.child_lineage %}
+                <ul class="list-group">
+                    {% for lineage in batch.child_lineage %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <a href="{{ url_for('main.view_batch', batch_id=lineage.child_batch_id) }}">
+                            Batch #{{ lineage.child_batch_id }}
+                        </a>
+                        <span class="badge bg-success">{{ lineage.relation_type }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted">No child batches</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-clipboard-check"></i> Inspections</h5>
+            </div>
+            <div class="card-body">
+                {% if batch.inspections %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Test</th>
+                                <th>Inspector</th>
+                                <th>Result</th>
+                                <th>Date</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for inspection in batch.inspections %}
+                            <tr id="inspection-{{ inspection.inspection_id }}">
+                                <td>#{{ inspection.inspection_id }}</td>
+                                <td>{{ inspection.test_type }}</td>
+                                <td>{{ inspection.inspector.full_name }}</td>
+                                <td><span class="badge badge-{{ inspection.result }}">{{ inspection.result }}</span></td>
+                                <td>{{ inspection.inspected_at.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ inspection.remarks or '-' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No inspections recorded</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-truck"></i> Shipments</h5>
+            </div>
+            <div class="card-body">
+                {% if batch.shipments %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Retailer</th>
+                                <th>Quantity</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for shipment in batch.shipments %}
+                            <tr>
+                                <td>#{{ shipment.shipment_id }}</td>
+                                <td>{{ shipment.retailer.shop_name }}</td>
+                                <td>{{ shipment.quantity_kg }} kg</td>
+                                <td><span class="badge bg-{{ 'success' if shipment.status == 'DELIVERED' else 'warning' }}">{{ shipment.status }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No shipments</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-tools"></i> Processing Events</h5>
+            </div>
+            <div class="card-body">
+                {% if batch.processing_events %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Input</th>
+                                <th>Output</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for event in batch.processing_events %}
+                            <tr>
+                                <td>{{ event.event_type }}</td>
+                                <td>{{ event.input_qty_kg }} kg</td>
+                                <td>{{ event.output_qty_kg }} kg</td>
+                                <td>{{ event.event_time.strftime('%Y-%m-%d') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No processing events</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

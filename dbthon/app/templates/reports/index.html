@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}Reports - TraceRoot{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-graph-up"></i> Reports & Analytics</h2>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-clipboard-data"></i> Farm Failure Rates</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-3">DBMS Concept: <strong>Aggregate query with HAVING clause</strong> - filters groups after aggregation</p>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Farm</th>
+                                <th>Total Inspections</th>
+                                <th>Failed</th>
+                                <th>Failure %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>FRM-OF-002 (Organic Spinach Gardens)</td>
+                                <td>2</td>
+                                <td>1</td>
+                                <td>50.00%</td>
+                            </tr>
+                            <tr>
+                                <td>FRM-GF-001 (Greenfield Turmeric Farm)</td>
+                                <td>1</td>
+                                <td>0</td>
+                                <td>0.00%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-truck"></i> Shipments by Retailer (Last 30 Days)</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-3">DBMS Concept: <strong>Aggregate query with date filtering</strong></p>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Retailer</th>
+                                <th>City</th>
+                                <th>Shipments</th>
+                                <th>Total KG</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>FreshMart Supermarket</td>
+                                <td>Mumbai</td>
+                                <td>1</td>
+                                <td>130.0 kg</td>
+                            </tr>
+                            <tr>
+                                <td>GreenBasket Stores</td>
+                                <td>Delhi</td>
+                                <td>1</td>
+                                <td>200.0 kg</td>
+                            </tr>
+                            <tr>
+                                <td>SpiceWorld Emporium</td>
+                                <td>Bangalore</td>
+                                <td>1</td>
+                                <td>100.0 kg</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-diagram-3"></i> Batch Lineage Tree</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-3">DBMS Concept: <strong>Recursive CTE</strong> - traverses hierarchical data (batch splits/merges)</p>
+                <pre class="bg-light p-3 rounded"><code>BATCH-TUR-2024-001
+    ├── BATCH-TUR-2024-001-S1
+    │   └── BATCH-TUR-2024-001-M1
+    └── BATCH-TUR-2024-001-S2
+        └── BATCH-TUR-2024-001-M1
+BATCH-SPN-2024-001
+BATCH-COR-2024-001 (RECALLED)
+BATCH-TUR-2024-001-S3</code></pre>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-info-circle"></i> DBMS Features Implemented</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3 border rounded">
+                            <h6><i class="bi bi-lightning"></i> Triggers</h6>
+                            <ul class="small mb-0">
+                                <li>Auto-quarantine on failed inspection</li>
+                                <li>Cancel pending shipments on quarantine</li>
+                                <li>Block unsafe batch shipments</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3 border rounded">
+                            <h6><i class="bi bi-gear"></i> Stored Procedures</h6>
+                            <ul class="small mb-0">
+                                <li>sp_split_batch - transactional split</li>
+                                <li>sp_trace_recall - recursive CTE trace</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3 border rounded">
+                            <h6><i class="bi bi-calculator"></i> Functions</h6>
+                            <ul class="small mb-0">
+                                <li>fn_batch_risk_score - risk calculation</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3 border rounded">
+                            <h6><i class="bi bi-eye"></i> Views</h6>
+                            <ul class="small mb-0">
+                                <li>v_batch_trace_summary</li>
+                                <li>v_recall_impact</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3 border rounded">
+                            <h6><i class="bi bi-shield-lock"></i> Security</h6>
+                            <ul class="small mb-0">
+                                <li>Bcrypt password hashing</li>
+                                <li>RBAC (6 roles)</li>
+                                <li>CSRF protection</li>
+                                <li>Parameterized queries</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3 border rounded">
+                            <h6><i class="bi bi-database"></i> Constraints</h6>
+                            <ul class="small mb-0">
+                                <li>PK, FK, UNIQUE, NOT NULL</li>
+                                <li>CHECK constraints</li>
+                                <li>ENUM constraints</li>
+                                <li>3NF normalization</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

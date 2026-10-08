@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Batches - TraceRoot{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-box-seam"></i> All Batches</h2>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <input type="text" class="form-control" name="search" placeholder="Search by batch code..." value="{{ search }}">
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" name="status">
+                    <option value="">All Statuses</option>
+                    <option value="ACTIVE" {% if status_filter == 'ACTIVE' %}selected{% endif %}>Active</option>
+                    <option value="QUARANTINED" {% if status_filter == 'QUARANTINED' %}selected{% endif %}>Quarantined</option>
+                    <option value="RECALLED" {% if status_filter == 'RECALLED' %}selected{% endif %}>Recalled</option>
+                    <option value="CONSUMED" {% if status_filter == 'CONSUMED' %}selected{% endif %}>Consumed</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-search"></i> Search
+                </button>
+            </div>
+            <div class="col-md-3">
+                <a href="{{ url_for('main.list_batches') }}" class="btn btn-outline-secondary w-100">Clear</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Batch Code</th>
+                        <th>Product</th>
+                        <th>Type</th>
+                        <th>Farm</th>
+                        <th>Quantity (kg)</th>
+                        <th>Status</th>
+                        <th>Stage</th>
+                        <th>Harvest Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for batch in batches.items %}
+                    <tr>
+                        <td><a href="{{ url_for('main.view_batch', batch_id=batch.batch_id) }}">{{ batch.batch_code }}</a></td>
+                        <td>{{ batch.product.product_name }}</td>
+                        <td>{{ batch.batch_type }}</td>
+                        <td>{{ batch.farm.farm_name if batch.farm else 'N/A' }}</td>
+                        <td>{{ batch.quantity_kg }}</td>
+                        <td><span class="badge badge-{{ batch.status }}">{{ batch.status }}</span></td>
+                        <td>{{ batch.stage }}</td>
+                        <td>{{ batch.harvest_date }}</td>
+                        <td>
+                            <a href="{{ url_for('main.view_batch', batch_id=batch.batch_id) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="9" class="text-center">No batches found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        {% if batches.pages > 1 %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if batches.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('main.list_batches', page=batches.prev_num, search=search, status=status_filter) }}">Previous</a>
+                </li>
+                {% endif %}
+                {% for page_num in batches.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num == batches.page %}
+                        <li class="page-item active"><a class="page-link" href="#">{{ page_num }}</a></li>
+                        {% else %}
+                        <li class="page-item"><a class="page-link" href="{{ url_for('main.list_batches', page=page_num, search=search, status=status_filter) }}">{{ page_num }}</a></li>
+                        {% endif %}
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                    {% endif %}
+                {% endfor %}
+                {% if batches.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('main.list_batches', page=batches.next_num, search=search, status=status_filter) }}">Next</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

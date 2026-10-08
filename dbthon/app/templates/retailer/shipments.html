@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}My Shipments - TraceRoot{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-truck"></i> My Shipments</h2>
+    <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Dashboard
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Shipment ID</th>
+                        <th>Batch Code</th>
+                        <th>Product</th>
+                        <th>Quantity (kg)</th>
+                        <th>Shipped Date</th>
+                        <th>Expected Delivery</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for shipment in shipments %}
+                    <tr>
+                        <td>#{{ shipment.shipment_id }}</td>
+                        <td><a href="{{ url_for('main.view_batch_history', batch_id=shipment.batch_id) }}">{{ shipment.batch.batch_code }}</a></td>
+                        <td>{{ shipment.batch.product.product_name }}</td>
+                        <td>{{ shipment.quantity_kg }}</td>
+                        <td>{{ shipment.shipped_date }}</td>
+                        <td>{{ shipment.expected_delivery or 'N/A' }}</td>
+                        <td><span class="badge bg-{{ 'success' if shipment.status == 'DELIVERED' else 'warning' if shipment.status == 'IN_TRANSIT' else 'secondary' }}">{{ shipment.status }}</span></td>
+                        <td>
+                            {% if shipment.status == 'IN_TRANSIT' %}
+                            <form action="{{ url_for('main.confirm_shipment', shipment_id=shipment.shipment_id) }}" method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-success">Confirm Delivery</button>
+                            </form>
+                            {% endif %}
+                            <a href="{{ url_for('main.view_batch_history', batch_id=shipment.batch_id) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i> View Batch
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center">No shipments received yet</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

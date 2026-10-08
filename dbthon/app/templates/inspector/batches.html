@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Inspect Batches - TraceRoot{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-clipboard-check"></i> Batches for Inspection</h2>
+    <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Dashboard
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Batch Code</th>
+                        <th>Product</th>
+                        <th>Farm</th>
+                        <th>Quantity (kg)</th>
+                        <th>Status</th>
+                        <th>Harvest Date</th>
+                        <th>Inspections</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for batch in batches %}
+                    <tr>
+                        <td><a href="{{ url_for('main.view_batch', batch_id=batch.batch_id) }}">{{ batch.batch_code }}</a></td>
+                        <td>{{ batch.product.product_name }}</td>
+                        <td>{{ batch.farm.farm_name if batch.farm else 'N/A' }}</td>
+                        <td>{{ batch.quantity_kg }}</td>
+                        <td><span class="badge badge-{{ batch.status }}">{{ batch.status }}</span></td>
+                        <td>{{ batch.harvest_date }}</td>
+                        <td>{{ batch.inspections|length }}</td>
+                        <td>
+                            <a href="{{ url_for('main.create_inspection', batch_id=batch.batch_id) }}" class="btn btn-sm btn-primary">
+                                <i class="bi bi-clipboard-check"></i> Inspect
+                            </a>
+                            <a href="{{ url_for('main.view_batch', batch_id=batch.batch_id) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center">No batches available for inspection</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

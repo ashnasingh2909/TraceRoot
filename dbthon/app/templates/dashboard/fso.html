@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}Food Safety Officer Dashboard - TraceRoot{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-shield-exclamation"></i> Food Safety Officer Dashboard</h2>
+    <div>
+        <a href="{{ url_for('main.recall_simulation') }}" class="btn btn-outline-primary me-2">
+            <i class="bi bi-search"></i> Trace Recall
+        </a>
+        <a href="{{ url_for('main.create_recall') }}" class="btn btn-danger">
+            <i class="bi bi-exclamation-triangle"></i> Issue Recall
+        </a>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon primary">
+                <i class="bi bi-box-seam"></i>
+            </div>
+            <h3>{{ total_batches }}</h3>
+            <p>Total Batches</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon success">
+                <i class="bi bi-clipboard-check"></i>
+            </div>
+            <h3>{{ total_inspections }}</h3>
+            <p>Total Inspections</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon warning">
+                <i class="bi bi-shield-exclamation"></i>
+            </div>
+            <h3>{{ open_recalls|length }}</h3>
+            <p>Open Recalls</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon info">
+                <i class="bi bi-exclamation-triangle"></i>
+            </div>
+            <h3>{{ quarantined|length }}</h3>
+            <p>Quarantined Batches</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-shield-exclamation"></i> Active Recalls</h5>
+                <a href="{{ url_for('main.fso_recalls') }}" class="btn btn-sm btn-primary">View All</a>
+            </div>
+            <div class="card-body">
+                {% for recall in open_recalls[:3] %}
+                <div class="alert alert-danger mb-3">
+                    <h6 class="mb-1">{{ recall.recall_code }}</h6>
+                    <p class="mb-1 small">{{ recall.reason }}</p>
+                    <small class="text-muted">Issued: {{ recall.issued_at.strftime('%Y-%m-%d') }} | Severity: {{ recall.severity }}</small>
+                </div>
+                {% else %}
+                <p class="text-muted text-center">No open recalls</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Quarantined Batches</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <tr>
+                                <th>Batch Code</th>
+                                <th>Product</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for batch in quarantined[:5] %}
+                            <tr>
+                                <td><a href="{{ url_for('main.view_batch', batch_id=batch.batch_id) }}">{{ batch.batch_code }}</a></td>
+                                <td>{{ batch.product.product_name }}</td>
+                                <td><span class="badge badge-{{ batch.status }}">{{ batch.status }}</span></td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center">No quarantined batches</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-house-exclamation me-2"></i>Farms under quarantine</h5>
+        <span class="badge bg-warning text-dark">{{ quarantined_farms|length }}</span>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-sm table-hover">
+                <thead>
+                    <tr>
+                        <th>Farm</th>
+                        <th>Farm code</th>
+                        <th>District</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for farm in quarantined_farms %}
+                    <tr>
+                        <td>{{ farm.farm_name }}</td>
+                        <td>{{ farm.farm_code }}</td>
+                        <td>{{ farm.district }}, {{ farm.state }}</td>
+                        <td><span class="badge bg-warning text-dark">{{ farm.status }}</span></td>
+                        <td>
+                            <form action="{{ url_for('main.release_farm_quarantine', farm_id=farm.farm_id) }}" method="POST">
+                                <button type="submit" class="btn btn-sm btn-outline-primary">Release after review</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="5" class="text-center">No farms under quarantine</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

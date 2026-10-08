@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Record Inspection - TraceRoot{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <div class="text-uppercase small fw-semibold text-muted mb-1">Inspection record</div>
+        <h2 class="mb-0">{{ batch.batch_code }}</h2>
+    </div>
+    <a href="{{ url_for('main.inspector_batches') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1" aria-hidden="true"></i> Back to inspection queue
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <section class="card mb-4" aria-labelledby="batch-information-title">
+            <div class="card-header">
+                <h5 id="batch-information-title" class="mb-0"><i class="bi bi-box-seam me-2" aria-hidden="true"></i>Batch information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-sm-6 col-xl-4"><div class="record-label">Product</div><div class="record-value">{{ batch.product.product_name }}</div></div>
+                    <div class="col-sm-6 col-xl-4"><div class="record-label">Source farm</div><div class="record-value">{{ batch.farm.farm_name if batch.farm else 'Derived batch' }}</div></div>
+                    <div class="col-sm-6 col-xl-4"><div class="record-label">Available quantity</div><div class="record-value">{{ batch.quantity_kg }} kg</div></div>
+                    <div class="col-sm-6 col-xl-4"><div class="record-label">Current status</div><div class="record-value"><span class="badge badge-{{ batch.status }}">{{ batch.status }}</span></div></div>
+                    <div class="col-sm-6 col-xl-4"><div class="record-label">Harvest date</div><div class="record-value">{{ batch.harvest_date }}</div></div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="card" aria-labelledby="inspection-details-title">
+            <div class="card-header">
+                <h5 id="inspection-details-title" class="mb-0"><i class="bi bi-clipboard-check me-2" aria-hidden="true"></i>Inspection details</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-4">
+                        <label for="test_type" class="form-label">Test performed <span class="text-danger">*</span></label>
+                        <select class="form-select" id="test_type" name="test_type" required>
+                            <option value="">Select a test</option>
+                            {% for test_type in test_types %}
+                            <option value="{{ test_type }}">{{ test_type }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">Choose the official check carried out for this batch.</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="result" class="form-label">Test result <span class="text-danger">*</span></label>
+                        <select class="form-select" id="result" name="result" required>
+                            <option value="">Select result</option>
+                            <option value="PASS">Pass</option>
+                            <option value="FAIL">Fail</option>
+                        </select>
+                        <div class="form-text">A failed result quarantines this batch and its source farm, cancels pending shipments, and pauses new production until FSO review.</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="remarks" class="form-label">Inspection notes</label>
+                        <textarea class="form-control" id="remarks" name="remarks" rows="4" maxlength="500" placeholder="Record observations relevant to this test"></textarea>
+                    </div>
+
+                    <div class="d-flex flex-column flex-sm-row gap-2 border-top pt-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check2-circle me-1" aria-hidden="true"></i> Save inspection
+                    </button>
+                    <a href="{{ url_for('main.inspector_batches') }}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </div>
+    
+    <aside class="col-lg-4">
+        <div class="card border-start border-4 border-success">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-shield-check me-2" aria-hidden="true"></i>Inspection outcome</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-3">A failed inspection places this batch and its originating farm under quarantine for follow-up.</p>
+                <div class="d-flex gap-2 align-items-start small text-muted">
+                    <i class="bi bi-info-circle mt-1" aria-hidden="true"></i>
+                    <span>The result and test type are retained in the batch inspection history.</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+</div>
+{% endblock %}

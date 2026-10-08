@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Create Batch - TraceRoot{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-plus-circle"></i> Create Harvest Batch</h2>
+    <a href="{{ url_for('main.farmer_batches') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Batches
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        {% if not farms %}
+        <div class="alert alert-warning" role="status">
+            <i class="bi bi-shield-exclamation me-1" aria-hidden="true"></i>
+            No active farms are available for production. A quarantined farm must be reviewed by a Food Safety Officer before new batches can be created.
+        </div>
+        {% endif %}
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-box-seam"></i> New Batch Details</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="batch_code" class="form-label">Batch Code</label>
+                        <input type="text" class="form-control" id="batch_code" name="batch_code" required 
+                               placeholder="e.g., BATCH-TUR-2024-002">
+                        <small class="text-muted">Unique identifier for this batch</small>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="farm_id" class="form-label">Farm</label>
+                            <select class="form-select" id="farm_id" name="farm_id" required {% if not farms %}disabled{% endif %}>
+                                <option value="">{{ 'No active farms available' if not farms else 'Select Farm' }}</option>
+                                {% for farm in farms %}
+                                <option value="{{ farm.farm_id }}">{{ farm.farm_name }} ({{ farm.farm_code }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="product_id" class="form-label">Product</label>
+                            <select class="form-select" id="product_id" name="product_id" required>
+                                <option value="">Select Product</option>
+                                {% for product in products %}
+                                <option value="{{ product.product_id }}">{{ product.product_name }} ({{ product.category }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="quantity_kg" class="form-label">Quantity (kg)</label>
+                            <input type="number" step="0.001" class="form-control" id="quantity_kg" name="quantity_kg" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="harvest_date" class="form-label">Harvest Date</label>
+                            <input type="date" class="form-control" id="harvest_date" name="harvest_date" required>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> Expiry date will be automatically calculated based on product shelf life.
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Create Batch
+                    </button>
+                    <a href="{{ url_for('main.farmer_batches') }}" class="btn btn-outline-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-info-circle"></i> DBMS Concept</h5>
+            </div>
+            <div class="card-body">
+                <p class="small text-muted">
+                    Creating a HARVEST batch inserts into the <code>batches</code table with:
+                </p>
+                <ul class="small text-muted">
+                    <li><strong>batch_type = 'HARVEST'</strong></li>
+                    <li><strong>farm_id NOT NULL</strong> (direct link to source farm)</li>
+                    <li><strong>quantity_kg = initial_quantity_kg</strong> (full quantity available)</li>
+                    <li><strong>status = 'ACTIVE'</strong> (ready for processing/inspection)</li>
+                </ul>
+                <p class="small text-muted mb-0">
+                    This demonstrates <strong>INSERT with FK constraints</strong> - the farm_id must reference an existing farm.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

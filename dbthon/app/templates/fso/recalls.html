@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Recall Management - TraceRoot{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-shield-exclamation"></i> Recall Management</h2>
+    <div>
+        <a href="{{ url_for('main.create_recall') }}" class="btn btn-danger">
+            <i class="bi bi-exclamation-triangle"></i> Issue Recall
+        </a>
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary ms-2">
+            <i class="bi bi-arrow-left"></i> Back
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Recall Code</th>
+                        <th>Batch</th>
+                        <th>Product</th>
+                        <th>Severity</th>
+                        <th>Status</th>
+                        <th>Issued By</th>
+                        <th>Issued Date</th>
+                        <th>Reason</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for recall in recalls %}
+                    <tr>
+                        <td><strong>{{ recall.recall_code }}</strong></td>
+                        <td><a href="{{ url_for('main.view_batch', batch_id=recall.batch_id) }}">{{ recall.batch.batch_code }}</a></td>
+                        <td>{{ recall.batch.product.product_name }}</td>
+                        <td><span class="badge bg-{{ 'danger' if recall.severity == 'CLASS_I' else 'warning' if recall.severity == 'CLASS_II' else 'info' }}">{{ recall.severity }}</span></td>
+                        <td><span class="badge bg-{{ 'success' if recall.status == 'CLOSED' else 'primary' }}">{{ recall.status }}</span></td>
+                        <td>{{ recall.issuer.full_name }}</td>
+                        <td>{{ recall.issued_at.strftime('%Y-%m-%d') }}</td>
+                        <td><small>{{ recall.reason[:50] }}...</small></td>
+                        <td>
+                            {% if recall.status == 'OPEN' %}
+                            <form action="{{ url_for('main.close_recall', recall_id=recall.recall_id) }}" method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-success">Close</button>
+                            </form>
+                            {% endif %}
+                            <a href="{{ url_for('main.recall_simulation') }}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-search"></i> Trace
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="9" class="text-center">No recalls issued yet</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

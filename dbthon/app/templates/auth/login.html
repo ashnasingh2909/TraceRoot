@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Login - TraceRoot{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center align-items-center" style="min-height: 80vh;">
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-diagram-3" style="font-size: 3rem; background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                        <h3 class="mt-3">TraceRoot Login</h3>
+                        <p class="text-muted">Enter your credentials to access the system</p>
+                    </div>
+                    
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                <input type="text" class="form-control" id="username" name="username" required autofocus>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="password" class="form-label">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100 py-2">
+                            <i class="bi bi-box-arrow-in-right"></i> Login
+                        </button>
+                    </form>
+                    
+                    <div class="mt-4 p-3 bg-light rounded">
+                        <h6 class="mb-2"><i class="bi bi-info-circle"></i> Demo Credentials</h6>
+                        <small class="text-muted">
+                            <strong>Admin:</strong> admin / password123<br>
+                            <strong>Farmer:</strong> farmer_raj / password123<br>
+                            <strong>Processor:</strong> processor_ashok / password123<br>
+                            <strong>Inspector:</strong> inspector_meena / password123<br>
+                            <strong>Retailer:</strong> retailer_freshmart / password123<br>
+                            <strong>FSO:</strong> fso_kumar / password123
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
