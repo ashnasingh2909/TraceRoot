@@ -8,6 +8,8 @@ The system maintains the complete history of a food batch, including harvesting,
 
 If a food batch fails a safety inspection, the system automatically quarantines the batch and prevents unsafe shipments. In case of a recall, TraceRoot can trace the affected batch back to its source farm and identify the retailers and other batches that may be affected.
 
+## Live Link
+https://traceroot-vnee.onrender.com/
 ## GitHub Repository
 
 https://github.com/ashnasingh2909/TraceRoot
@@ -156,7 +158,12 @@ pip install -r requirements.txt
 
 ### 2. Configure database
 
-Create a `.env` file and configure the MySQL credentials.
+Create a `.env` file and configure the database credentials. For Render deployment, use a PostgreSQL connection string via `DATABASE_URL`.
+
+```env
+DATABASE_URL=postgresql://username:password@host:5432/traceroot
+SECRET_KEY=your-secret-key
+```
 
 ### 3. Create database schema
 
@@ -185,6 +192,23 @@ python run.py
 Open:
 
 http://localhost:5000
+
+## Deploy to Render
+
+This project is ready for Render deployment using the included `render.yaml` and `wsgi.py`.
+
+1. Push the repository to GitHub.
+2. In Render, create a new Web Service and connect the GitHub repo.
+3. Choose the Python environment.
+4. Render will install dependencies from `requirements.txt` and start the app with `gunicorn wsgi:app`.
+5. Add the following environment variables in the Render dashboard:
+
+```env
+SECRET_KEY=your-strong-secret
+DATABASE_URL=postgresql://username:password@host:5432/traceroot
+```
+
+Render will automatically provision the PostgreSQL database defined in `render.yaml`.
 
 ## Security
 
